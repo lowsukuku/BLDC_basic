@@ -12,17 +12,10 @@
 #include "sysclk.h"
 #include "adc_dma.h"
 #include "bldc.h"
+extern uint16_t speed,PWM1;
+uint16_t i=0;
 
 int main(void)
-
-
-
-
-
-
-
-
-
 {
 	// Set clock
 	SetSysClockTo72();
@@ -39,10 +32,14 @@ int main(void)
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 	GPIO_SetBits(GPIOB, GPIO_Pin_0);
-
+	PWM1=1200;
+	BLDC_SetPWM(PWM1);
     while(1)
     {
-    	if (ADCBuffer[0] > BLDC_ADC_START) {
+    	if (/*ADCBuffer[0]*/BLDC_UARTtoPWM() > BLDC_ADC_START) {
+//ADCBuffer[0] если предполагается управление потенциометрами
+//BLDC_UARTtoPWM() если предполагается управление по UART
+//Ненужное закомментить, нужное разкомментить				
     		if (BLDC_MotorGetSpin() == BLDC_STOP) {
     			// Check Reverse pin
     			if (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_0) != 0) {
@@ -57,11 +54,16 @@ int main(void)
     		}
  
             
-            BLDC_SetPWM(BLDC_ADCToPWM(ADCBuffer[0]));
+				//BLDC_SetPWM(BLDC_ADCToPWM(ADCBuffer[0])); 
+				BLDC_SetPWM(BLDC_UARTtoPWM()); //Разкомментить для UART
     	}
     	else {
     		if (BLDC_MotorGetSpin() != BLDC_STOP) {
-    			if (ADCBuffer[0] < BLDC_ADC_STOP) {
+    			//if (ADCBuffer[0] < BLDC_ADC_STOP) {
+    			if (BLDC_UARTtoPWM() <  100) {
+//ADCBuffer[0] и BLDC_ADC_STOP если предполагается управление потенциометрами
+//BLDC_UARTtoPWM() и 100 если предполагается управление по UART
+//Ненужное закомментить, нужное разкомментить
     				BLDC_MotorStop();
     			}
     		}

@@ -20,6 +20,7 @@
 #define BLDC_PWMTOPBOTTOMKEYS // works with our driver
 //#define BLDC_PWMCOMPLEMENTARYMODE // not working with our driver
 
+
 #define BLDC_ADC_START 200
 #define BLDC_ADC_STOP 50
 #define BLDC_ADC_MAX 4000
@@ -36,6 +37,7 @@
 #define WH	4
 #define WL	5
 
+void uartInit(void);
 void BLDC_Init(void);
 void BLDC_HallSensorsInit(void);
 void BLDC_PWMTimerInit(void);
@@ -45,6 +47,7 @@ uint8_t BLDC_MotorGetSpin(void);
 void BLDC_MotorStop(void);
 void BLDC_MotorCommutation(uint16_t hallpos);
 uint16_t BLDC_ADCToPWM(uint16_t ADC_VALUE);
+uint16_t BLDC_UARTtoPWM(void);
 void BLDC_SetPWM(uint16_t PWM);
 
 #endif

@@ -2,6 +2,7 @@
 #include "stm32f10x_gpio.h"
 #include "stm32f10x_tim.h"
 #include "stm32f10x_exti.h"
+#include "stm32f10x_usart.h"
 #include "misc.h"
 #include "string.h"
 #include "stdio.h"
@@ -10,7 +11,8 @@
 
 uint8_t BLDC_MotorSpin = 0;
 uint8_t BLDC_STATE[6] = {0,0,0,0,0,0};
-
+uint16_t speed;
+uint16_t PWM1=0;
 #ifndef BLDC_PWMCOMPLEMENTARYMODE
 uint8_t BLDC_STATE_PREV[6] = {0,0,0,0,0,0};
 #endif
@@ -42,9 +44,27 @@ static const uint8_t BLDC_BRIDGE_STATE_BACKWARD[8][6] =   // Motor steps+vbyju67
    { 0,0	,	0,0	,	0,0 },  //  //111
 };
 
+void uartInit(void)
+{
+	GPIOA->CRL		&= ~GPIO_CRL_CNF3;	// Clear CNF bit 3
+	GPIOA->CRL		|= GPIO_CRL_CNF3_0;	// Set CNF bit 3 to 01 HiZ
+	GPIOA->CRL		&= ~GPIO_CRL_MODE3;
+	RCC->APB1ENR	|= RCC_APB1ENR_USART2EN;
+	USART_InitTypeDef USART_InitStruct;
+	USART_InitStruct.USART_BaudRate = 9600;
+  USART_InitStruct.USART_WordLength = USART_WordLength_8b;
+  USART_InitStruct.USART_StopBits = USART_StopBits_1;
+  USART_InitStruct.USART_Parity = USART_Parity_No;
+  USART_InitStruct.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+  USART_InitStruct.USART_Mode = USART_Mode_Rx;
+	USART_Init(USART2, &USART_InitStruct);
+	USART2->CR1|=USART_CR1_UE;
+}
+
 void BLDC_Init(void) {
 	BLDC_HallSensorsInit();
 	BLDC_PWMTimerInit();
+	uartInit();
 	TIM_SelectOCxM(TIM1, TIM_Channel_1, TIM_OCMode_PWM1);
 	TIM_SelectOCxM(TIM1, TIM_Channel_2, TIM_OCMode_PWM1);
 	TIM_SelectOCxM(TIM1, TIM_Channel_3, TIM_OCMode_PWM1);
@@ -412,6 +432,21 @@ uint16_t BLDC_ADCToPWM(uint16_t ADC_VALUE) {
 
 }
 
+uint16_t UDATA;
+uint16_t BLDC_UARTtoPWM(void)
+{
+    UDATA = USART_ReceiveData(USART2)*8.793;
+    if  (UDATA>4000) {
+    UDATA=4000;
+    }
+ /*    UDATA = (USART_ReceiveData(USART2)-48)*0x1194/9;
+    if  (UDATA>4000) {
+    UDATA=4000;
+    }
+     */   
+	//return USART_ReceiveData(USART2)*8.793;
+    return UDATA;
+}
 void BLDC_SetPWM(uint16_t PWM)
 {
 	TIM1->CCR1 = PWM;
