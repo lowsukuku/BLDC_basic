@@ -1,0 +1,15 @@
+*.dbgconf
+*.map
+*.lst
+*.iex
+*.crf
+*.d
+*.o
+*.axf
+*.hex
+*.htm
+*.lnp
+*.sct
+*.dep
+*.uvoptx
+*.uvguix.*
