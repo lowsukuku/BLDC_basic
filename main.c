@@ -13,16 +13,9 @@
 #include "adc_dma.h"
 #include "bldc.h"
 
+extern uint16_t ADC_controlValue;
+
 int main(void)
-
-
-
-
-
-
-
-
-
 {
 	// Set clock
 	SetSysClockTo72();
@@ -42,7 +35,9 @@ int main(void)
 
     while(1)
     {
-    	if (ADCBuffer[0] > BLDC_ADC_START) {
+			ADC_controlValue=ADC_calculateMedian();
+			
+    	if (ADC_controlValue > BLDC_ADC_START) {
     		if (BLDC_MotorGetSpin() == BLDC_STOP) {
     			// Check Reverse pin
     			if (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_0) != 0) {
@@ -57,11 +52,11 @@ int main(void)
     		}
  
             
-            BLDC_SetPWM(BLDC_ADCToPWM(ADCBuffer[0]));
+            BLDC_SetPWM(BLDC_ADCToPWM(ADC_controlValue));
     	}
     	else {
     		if (BLDC_MotorGetSpin() != BLDC_STOP) {
-    			if (ADCBuffer[0] < BLDC_ADC_STOP) {
+    			if (ADC_controlValue < BLDC_ADC_STOP) {
     				BLDC_MotorStop();
     			}
     		}
