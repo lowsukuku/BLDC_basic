@@ -1,6 +1,6 @@
 #ifndef _BLDC_LIB_H_
 #define _BLDC_LIB_H_
-
+#include "timer.h"
 // PWM Frequency = 72000000/BLDC_CHOPPER_PERIOD
 //#define BLDC_CHOPPER_PERIOD 4500
 // Dead time = BLDC_NOL/72000000  (on 72MHz: 7 is 98ns)

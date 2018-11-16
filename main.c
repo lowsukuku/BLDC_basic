@@ -32,7 +32,7 @@ int main(void)
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 	GPIO_SetBits(GPIOB, GPIO_Pin_0);
-
+	speedometerTimerInit();
     while(1)
     {
 			ADC_controlValue=ADC_calculateMedian();

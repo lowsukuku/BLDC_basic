@@ -8,8 +8,11 @@
 
 #include "bldc.h"
 
+
 uint8_t BLDC_MotorSpin = 0;
 uint8_t BLDC_STATE[6] = {0,0,0,0,0,0};
+extern float motorRPM;
+
 
 #ifndef BLDC_PWMCOMPLEMENTARYMODE
 uint8_t BLDC_STATE_PREV[6] = {0,0,0,0,0,0};
@@ -92,8 +95,13 @@ void EXTI9_5_IRQHandler(void) {
     	EXTI_ClearITPendingBit(EXTI_Line8);
     	EXTI_ClearITPendingBit(EXTI_Line9);
 
-        // Commutation
-        BLDC_MotorCommutation(BLDC_HallSensorsGetPosition());
+      // Commutation
+			uint8_t hallPosition=BLDC_HallSensorsGetPosition();
+      BLDC_MotorCommutation(hallPosition);
+			if (isCorrectHallSequence(hallPosition))
+			{
+				RPM_measure();
+			}
     }
 }
 
